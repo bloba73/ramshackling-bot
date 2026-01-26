@@ -1,0 +1,5 @@
+.venv/
+.git/
+.env
+bot/storage/data/*
+__pycache__/
