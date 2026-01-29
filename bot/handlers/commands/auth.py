@@ -3,7 +3,6 @@ from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler, CommandHandler, MessageHandler, filters
 from utils.decorators import requires_registration
 from services.users import delete_user, register_user, validate_and_check_nickname, display_name, is_registered
-from handlers.commands.common import cancel
 from services.states import States
 
 
@@ -44,13 +43,18 @@ async def registration_nickname(update: Update, context: ContextTypes.DEFAULT_TY
     return ConversationHandler.END
 
 
+async def cancel_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Регистрация отменена.")
+    return ConversationHandler.END
+
+
 def get_registration_handler() -> ConversationHandler:
     return ConversationHandler(
         entry_points=[CommandHandler("registration", registration_start)],
         states={
             States.REGISTRATION_NICKNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, registration_nickname)],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[CommandHandler("cancel", cancel_reg)],
         allow_reentry=True
     )
 
@@ -82,7 +86,12 @@ async def delete_account_confirm(update: Update, context: ContextTypes.DEFAULT_T
     else:
         await update.message.reply_text("Удаление аккаунта отменено.")
         return ConversationHandler.END
- 
+
+
+async def cancel_del(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Удаление аккаунта отменено.")
+    return ConversationHandler.END
+
     
 def get_deleteaccount_handler() -> ConversationHandler:
     return ConversationHandler(
@@ -92,6 +101,6 @@ def get_deleteaccount_handler() -> ConversationHandler:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, delete_account_confirm)
             ],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[CommandHandler("cancel", cancel_del)],
         allow_reentry=True
     )

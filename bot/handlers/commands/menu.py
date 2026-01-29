@@ -1,10 +1,11 @@
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
-from utils.decorators import requires_registration
+from utils.decorators import requires_no_active_session, requires_registration
 from keyboards.inline import game_menu_keyboard
 
 
 @requires_registration
+@requires_no_active_session
 async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 

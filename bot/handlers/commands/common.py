@@ -59,10 +59,6 @@ async def id_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"ID пользователя: `{target_user.id}`", parse_mode="Markdown")
 
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Действие отменено.")
-    return ConversationHandler.END
-
 def get_common_handlers():
     handlers = [
         CommandHandler("help", help_handler),
