@@ -26,7 +26,7 @@ async def registration_nickname(update: Update, context: ContextTypes.DEFAULT_TY
     chat_id = update.effective_chat.id
     raw_nickname = update.message.text.strip()
 
-    if nickname == "-":
+    if raw_nickname == "-":
         nickname = None
     else:
         nickname = "".join(raw_nickname.split())

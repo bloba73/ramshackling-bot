@@ -137,8 +137,8 @@ async def lobby_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if game_name == "dices":
         game = Dices(chat_id, owner_id, joiner_id, bet)
         await game.play(None, context)
-
-    game_sessions.end(chat_id, owner_id)
+    if game_name == "p2":
+        return
 
 
 async def lobby_cancel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -7,6 +7,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from games.slotmachine import SlotMachine
 from games.coinflip import Coinflip
 from utils.decorators import requires_no_active_session
 from services.states import States
@@ -79,9 +80,12 @@ async def run_game(chat_id: int, user_id: int, bet: int, context: ContextTypes.D
 
     if game_name == "coinflip":
         game = Coinflip(chat_id, user_id, bet)
-        await game.play(None, context)
-
-    game_sessions.end(chat_id, user_id)
+        await game.play(context)
+        session["game_instance"] = game
+    elif game_name == "slotmachine":
+        game = SlotMachine(chat_id, user_id, bet)
+        await game.play(context)
+    # TODO: рулетка
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -90,9 +94,16 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     session = game_sessions.get(chat_id, user_id)
     if session and session["owner_id"] == user_id:
+        if session.get("message_id"):
+            await context.bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=session["message_id"],
+                text=f"{display_name(chat_id, user_id)} отменил игру."
+            )
+        else:
+            await update.message.reply_text(f"{display_name(chat_id, user_id)} отменил игру.")
         game_sessions.end(chat_id, user_id)
 
-    await update.message.reply_text("Игра отменена.")
     return ConversationHandler.END
 
 

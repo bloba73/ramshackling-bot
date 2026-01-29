@@ -1,4 +1,5 @@
 from html import escape
+import random
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
 from services.leaderboard import VALID_SORT_PARAMS, get_leaderboard
@@ -60,10 +61,25 @@ async def id_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"ID пользователя: `{target_user.id}`", parse_mode="Markdown")
 
 
+async def z_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        sticker_set = await context.bot.get_sticker_set("GOIDA_LUTAYA")
+        stickers = sticker_set.stickers
+        if not stickers:
+            await update.message.reply_text("Стикеры в паке не найдены.")
+            return
+
+        sticker = random.choice(stickers)
+        await update.message.reply_sticker(sticker.file_id)
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка при отправке стикера: {e}")
+
+
 def get_common_handlers():
     handlers = [
         CommandHandler("help", help_handler),
         CommandHandler("leaderboard", leaderboard_handler),
-        CommandHandler("id", id_handler)
+        CommandHandler("id", id_handler),
+        CommandHandler("z", z_handler)
     ]
     return handlers

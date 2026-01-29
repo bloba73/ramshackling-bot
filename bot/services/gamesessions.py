@@ -32,6 +32,7 @@ class GameSessionManager:
                 "players": [owner_id],
                 "message_id": None,
                 "state": "created", # created | waiting | started
+                "game_instance": None
             }
             return True
 

@@ -1,35 +1,81 @@
-import random
-from telegram import Update
+import asyncio
 from telegram.ext import ContextTypes
+from services.transactions import add_balance, subtract_balance
+from services.gamesessions import game_sessions
+from services.users import display_name
 
 class Dices:
-    def __init__(self, chat_id: int, player1_id: int, player2_id: int, bet: int):
+    def __init__(self, chat_id: int, owner_id: int, joiner_id: int, bet: int):
         self.chat_id = chat_id
-        self.player1_id = player1_id
-        self.player2_id = player2_id
+        self.owner_id = owner_id
+        self.joiner_id = joiner_id
         self.bet = bet
-        self.results = {}
 
-    async def play(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        roll1 = random.randint(1, 6)
-        self.results[self.player1_id] = roll1
+    async def play(self, update, context: ContextTypes.DEFAULT_TYPE):
+        owner_name = display_name(self.chat_id, self.owner_id)
+        joiner_name = display_name(self.chat_id, self.joiner_id)
+
         await context.bot.send_message(
-            chat_id=self.chat_id,
-            text=f"Игрок 1 бросает куб: {roll1}"
+            self.chat_id,
+            f"🎲 <b>{owner_name}</b> бросает кубик...",
+            parse_mode="HTML"
         )
 
-        roll2 = random.randint(1, 6)
-        self.results[self.player2_id] = roll2
-        await context.bot.send_message(
+        dice_owner = await context.bot.send_dice(
             chat_id=self.chat_id,
-            text=f"Игрок 2 бросает куб: {roll2}"
+            emoji="🎲"
         )
 
-        if roll1 > roll2:
-            winner_text = f"Победил игрок 1! Ставка: {self.bet} Ɍ"
-        elif roll2 > roll1:
-            winner_text = f"Победил игрок 2! Ставка: {self.bet} Ɍ"
+        owner_value = dice_owner.dice.value
+
+        await asyncio.sleep(3)
+
+        await context.bot.send_message(
+            self.chat_id,
+            f"🎲 <b>{joiner_name}</b> бросает кубик...",
+            parse_mode="HTML"
+        )
+
+        dice_joiner = await context.bot.send_dice(
+            chat_id=self.chat_id,
+            emoji="🎲"
+        )
+
+        joiner_value = dice_joiner.dice.value
+
+        await asyncio.sleep(3)
+
+        if owner_value > joiner_value:
+            add_balance(self.chat_id, self.owner_id, self.bet)
+            subtract_balance(self.chat_id, self.joiner_id, self.bet)
+
+            result_text = (
+                f"Победил <b>{owner_name}</b>\n"
+                f"{owner_value} vs {joiner_value}\n"
+                f"+{self.bet} Ɍ"
+            )
+
+        elif joiner_value > owner_value:
+            add_balance(self.chat_id, self.joiner_id, self.bet)
+            subtract_balance(self.chat_id, self.owner_id, self.bet)
+
+            result_text = (
+                f"Победил <b>{joiner_name}</b>\n"
+                f"{owner_value} vs {joiner_value}\n"
+                f"+{self.bet} Ɍ"
+            )
+
         else:
-            winner_text = f"Ничья! Оба броска: {roll1}"
+            result_text = (
+                f"Ничья\n"
+                f"{owner_value} = {joiner_value}\n"
+                f"Ставки возвращены"
+            )
 
-        await context.bot.send_message(chat_id=self.chat_id, text=winner_text)
+        await context.bot.send_message(
+            self.chat_id,
+            result_text,
+            parse_mode="HTML"
+        )
+
+        game_sessions.end(self.chat_id, self.owner_id)
