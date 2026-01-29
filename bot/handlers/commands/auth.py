@@ -24,10 +24,12 @@ async def registration_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def registration_nickname(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     chat_id = update.effective_chat.id
-    nickname = update.message.text.strip()
+    raw_nickname = update.message.text.strip()
 
     if nickname == "-":
         nickname = None
+    else:
+        nickname = "".join(raw_nickname.split())
 
     error = validate_and_check_nickname(chat_id, nickname)
     if error:

@@ -141,7 +141,7 @@ async def lobby_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     game_sessions.end(chat_id, owner_id)
 
 
-async def lobby_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def lobby_cancel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     chat_id = query.message.chat.id
     user_id = query.from_user.id
@@ -163,6 +163,21 @@ async def lobby_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(
         f"{display_name(chat_id, user_id)} отменил игру."
     )
+    return ConversationHandler.END
+
+
+async def lobby_cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+
+    session = game_sessions.get(chat_id, user_id)
+    if not session:
+        await update.message.reply_text("Активная игра не найдена.")
+        return ConversationHandler.END
+
+    game_sessions.end(chat_id, user_id)
+    await update.message.reply_text(f"{display_name(chat_id, user_id)} отменил игру.")
+    return ConversationHandler.END
 
 
 def get_multi_lobby_handler():
@@ -178,7 +193,9 @@ def get_multi_lobby_handler():
                 MessageHandler(filters.TEXT & ~filters.COMMAND, lobby_awaiting_bet)
             ]
         },
-        fallbacks=[CommandHandler("cancel", lobby_cancel)],
+        fallbacks=[
+            CommandHandler("cancel", lobby_cancel_command)
+        ],
         allow_reentry=True,
     )
 
@@ -190,7 +207,7 @@ def get_multi_lobby_callbacks():
             pattern=r"^lobby:duel:join:\d+$"
         ),
         CallbackQueryHandler(
-            lobby_cancel,
+            lobby_cancel_callback,
             pattern=r"^lobby:duel:cancel:\d+$"
-        ),
+        )
     ]

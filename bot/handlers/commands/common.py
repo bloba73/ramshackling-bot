@@ -1,6 +1,6 @@
 from html import escape
 from telegram import Update
-from telegram.ext import ContextTypes, ConversationHandler, CommandHandler
+from telegram.ext import ContextTypes, CommandHandler
 from services.leaderboard import VALID_SORT_PARAMS, get_leaderboard
 
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -15,6 +15,7 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         "— <b>Для зарегистрированных пользователей:</b>\n"
         "/menu — открыть меню с играми\n"
+        "/cancelgame — отменяет все активные игровые сессии или лобби\n"
         "/balance — показать ваш текущий баланс\n"
         "/give {user} {amount} — передать {amount} ремшекелей другому пользователю\n"
         "/drop {amount} — выбросить {amount} ремшекелей\n"

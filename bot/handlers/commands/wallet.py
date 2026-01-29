@@ -23,13 +23,14 @@ async def give_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Использование: /give {user} {amount}")
         return
 
-    identifier = context.args[0]
-    try:
-        amount = int(context.args[1])
-    except ValueError:
+    identifier = context.args[0].strip()
+    amount_str = context.args[1].strip()
+
+    if amount_str.startswith("/") or not amount_str.isdigit():
         await update.message.reply_text("Сумма должна быть числом.")
         return
 
+    amount = int(amount_str)
     target_user = get_user_by_identifier(chat_id, identifier)
     if not target_user:
         await update.message.reply_text("Пользователь не найден.")
@@ -62,12 +63,14 @@ async def drop_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) < 1:
         await update.message.reply_text("Использование: /drop {amount}")
         return
+    
+    amount_str = context.args[0].strip()
 
-    try:
-        amount = int(context.args[0])
-    except ValueError:
+    if amount_str.startswith("/") or not amount_str.isdigit():
         await update.message.reply_text("Сумма должна быть числом.")
         return
+
+    amount = int(amount_str)
 
     if not has_balance(chat_id, user_id, amount):
         await update.message.reply_text("У вас недостаточно ремшекелей.")
@@ -86,12 +89,13 @@ async def grant_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     identifier = context.args[0]
-    try:
-        amount = int(context.args[1])
-    except ValueError:
+    amount_str = context.args[1].strip()
+
+    if amount_str.startswith("/") or not amount_str.isdigit():
         await update.message.reply_text("Сумма должна быть числом.")
         return
 
+    amount = int(amount_str)
     target_user = get_user_by_identifier(chat_id, identifier)
     if not target_user:
         await update.message.reply_text("Пользователь не найден.")

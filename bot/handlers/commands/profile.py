@@ -13,7 +13,7 @@ async def setnick_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Использование: /setnick {new nickname}")
         return
 
-    nickname = " ".join(context.args).strip()
+    nickname = "".join(arg.strip() for arg in context.args)
     error = validate_and_check_nickname(chat_id, nickname)
     if error:
         await update.message.reply_text(error)

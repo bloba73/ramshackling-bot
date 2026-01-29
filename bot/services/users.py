@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from storage.json_db import load_chat, save_chat
 from config import START_BALANCE, MIN_NICK_LEN, MAX_NICK_LEN
@@ -92,6 +93,7 @@ def set_nickname(chat_id: int, user_id: int, nickname: str) -> bool:
     save_chat(chat_id, chat)
     return True
 
+ALLOWED_NICK_REGEX = re.compile(r"^[^\s/@]+$")
 
 def validate_and_check_nickname(chat_id: int, nickname: str | None) -> str | None:
     if nickname is None:
@@ -99,10 +101,10 @@ def validate_and_check_nickname(chat_id: int, nickname: str | None) -> str | Non
 
     nickname = nickname.strip()
 
-    if nickname.startswith("@"):
-        return "Ник не может содержать символ @. Используйте имя без @ или '-' для пропуска."
-    if nickname.startswith("/"):
-        return "Ник не может начинаться с символа /. Используйте имя без / или '-' для пропуска."
+    if nickname.startswith(("@", "/")):
+        return "Ник не может начинаться с символа @ или /. Используйте корректное имя."
+    if not ALLOWED_NICK_REGEX.fullmatch(nickname):
+        return "Ник не может содержать пробелы, переносы строк или символы / и @."
     if not (MIN_NICK_LEN <= len(nickname) <= MAX_NICK_LEN):
         return f"Ник должен быть от {MIN_NICK_LEN} до {MAX_NICK_LEN} символов."
 
