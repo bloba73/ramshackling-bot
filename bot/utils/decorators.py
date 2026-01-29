@@ -59,25 +59,15 @@ def handle_telegram_errors(func):
 
 def requires_no_active_session(func):
     @wraps(func)
-    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
-        if update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-            user_id = update.callback_query.from_user.id
-            is_callback = True
-        elif update.effective_chat and update.effective_user:
-            chat_id = update.effective_chat.id
-            user_id = update.effective_user.id
-            is_callback = False
-        else:
-            return await func(update, context, *args, **kwargs)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        chat_id = update.effective_chat.id
+        user_id = update.effective_user.id
 
-        if game_sessions.get(chat_id, user_id):
-            if is_callback:
-                await update.callback_query.answer("У вас уже есть открытая игра!", show_alert=True)
-            else:
-                await update.message.reply_text("У вас уже есть открытая игра!")
+        if game_sessions.has_active(chat_id, user_id):
+            await update.effective_message.reply_text(
+                "У вас уже есть активная игра."
+            )
             return
 
-        return await func(update, context, *args, **kwargs)
-
+        return await func(update, context)
     return wrapper

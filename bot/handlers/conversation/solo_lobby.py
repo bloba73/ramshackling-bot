@@ -24,12 +24,17 @@ async def lobby_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     try:
-        _, _, game_name, owner_id = query.data.split(":")
+        _, _, _, game_name, owner_id = query.data.split(":")
+        owner_id = int(owner_id)
     except ValueError:
         await query.answer("Некорректные данные кнопки", show_alert=True)
-        return
+        return ConversationHandler.END
     
-    game_sessions.start(chat_id, user_id, game_name)
+    if user_id != owner_id:
+        await query.answer("Это не ваше меню", show_alert=True)
+        return ConversationHandler.END
+    
+    game_sessions.start(chat_id, user_id, game_name, mode="solo")
 
     await query.edit_message_text(
         f"{display_name(chat_id, user_id)} выбрал игру: <b>{game_name.capitalize()}</b>",
@@ -58,17 +63,19 @@ async def lobby_awaiting_bet(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("Недостаточно средств.")
         return States.AWAITING_BET
     
-    await lobby_awaiting_game_results(update, chat_id, user_id, bet, context)
+    await run_game(chat_id, user_id, bet, context)
 
     return ConversationHandler.END
 
 
-async def lobby_awaiting_game_results(update: Update, chat_id: int, user_id: int, bet: int, context: ContextTypes.DEFAULT_TYPE):    
-    game_name = game_sessions.get(chat_id, user_id, {}).get("game")
+async def run_game(chat_id: int, user_id: int, bet: int, context: ContextTypes.DEFAULT_TYPE):
+    session = game_sessions.get(chat_id, user_id)
 
-    if game_name is None:
-        await update.message.reply_text("Ошибка: активная сессия не найдена.")
+    if not session:
+        await context.bot.send_message(chat_id, "Ошибка: активная игра не найдена.")
         return
+
+    game_name = session["game"]
 
     if game_name == "coinflip":
         game = Coinflip(chat_id, user_id, bet)
@@ -81,19 +88,20 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
-    if game_sessions.get(chat_id, user_id):
+    session = game_sessions.get(chat_id, user_id)
+    if session and session["owner_id"] == user_id:
         game_sessions.end(chat_id, user_id)
 
     await update.message.reply_text("Игра отменена.")
     return ConversationHandler.END
 
 
-def get_lobby_handler():
+def get_solo_lobby_handler():
     return ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
                 lobby_entry,
-                pattern=r"^menu:single:coinflip:\d+$"
+                pattern=r"^menu:single:play:[^:]+:\d+$"
             )
         ],
         states={
@@ -101,7 +109,9 @@ def get_lobby_handler():
                 MessageHandler(filters.TEXT & ~filters.COMMAND, lobby_awaiting_bet)
             ]
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[
+            CommandHandler("cancel", cancel)
+        ],
         allow_reentry=True
     )
 
