@@ -1,3 +1,4 @@
+from games.roulette import get_roulette_handler
 from games.coinflip import get_coinflip_callback_handler
 from handlers.conversation.multi_lobby import get_multi_lobby_handler, get_multi_lobby_callbacks
 from handlers.conversation.solo_lobby import get_solo_lobby_handler
@@ -11,6 +12,7 @@ from handlers.commands.wallet import get_wallet_handlers
 def load_handlers():
     handlers = []
 
+    handlers.append(get_roulette_handler())
     handlers.append(get_coinflip_callback_handler())
     handlers.append(get_multi_lobby_handler())
     handlers.extend(get_multi_lobby_callbacks()) # Потворить игру?

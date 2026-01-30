@@ -128,27 +128,28 @@ def touch_last_action(chat_id: int, user_id: int) -> bool:
     return True
 
 
-def record_game_result(chat_id: int, user_id: int, won_amount: int) -> bool:
+def update_user_meta(chat_id: int, user_id: int, **kwargs):
     chat = load_chat(chat_id)
     uid = str(user_id)
-    user = chat["users"].get(uid)
+    user = chat.get("users", {}).get(uid)
     if not user:
         return False
 
     meta = user.get("meta", {})
-    meta["games_played"] = meta.get("games_played", 0) + 1
 
-    if won_amount > 0:
-        meta["total_wins"] = meta.get("total_wins", 0) + 1
-        meta["max_amount_won"] = max(meta.get("max_amount_won", 0), won_amount)
-    elif won_amount < 0:
-        meta["total_losses"] = meta.get("total_losses", 0) + 1
-        meta["max_amount_lost"] = max(meta.get("max_amount_lost", 0), won_amount)
-    else:
-        meta["total_draws"] = meta.get("total_draws", 0) + 1
+    for key, value in kwargs.items():
+        old_val = meta.get(key)
+        if callable(value):
+            try:
+                meta[key] = value(old_val)
+            except Exception as e:
+                print(f"[update_user_meta] Ошибка при вычислении {key}: {e}")
+        else:
+            meta[key] = value
+
+    meta["last_action_at"] = datetime.utcnow().isoformat()
 
     user["meta"] = meta
-
     chat["users"][uid] = user
     save_chat(chat_id, chat)
     return True

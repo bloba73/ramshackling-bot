@@ -9,6 +9,7 @@ from telegram.ext import (
 )
 from games.slotmachine import SlotMachine
 from games.coinflip import Coinflip
+from games.roulette import Roulette
 from utils.decorators import requires_no_active_session
 from services.states import States
 from services.users import display_name
@@ -85,6 +86,12 @@ async def run_game(chat_id: int, user_id: int, bet: int, context: ContextTypes.D
     elif game_name == "slotmachine":
         game = SlotMachine(chat_id, user_id, bet)
         await game.play(context)
+    elif game_name == "roulette":
+        game = Roulette(chat_id, user_id, bet)
+        await game.play(context)
+        session["game_instance"] = game
+    elif game_name == "p":
+        return
     # TODO: рулетка
 
 

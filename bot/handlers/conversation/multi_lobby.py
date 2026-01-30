@@ -137,7 +137,7 @@ async def lobby_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if game_name == "dices":
         game = Dices(chat_id, owner_id, joiner_id, bet)
         await game.play(None, context)
-    if game_name == "p2":
+    elif game_name == "p":
         return
 
 

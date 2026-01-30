@@ -18,6 +18,10 @@ def solo_game_mode_keyboard(user_id: int) -> InlineKeyboardMarkup:
             InlineKeyboardButton("Slot Machine", callback_data=f"menu:single:play:slotmachine:{user_id}"),
         ],
         [
+            InlineKeyboardButton("Russian Roulette", callback_data=f"menu:single:play:roulette:{user_id}"),
+            InlineKeyboardButton("Placeholder", callback_data=f"menu:single:play:p:{user_id}"),
+        ],
+        [
             InlineKeyboardButton("Назад", callback_data=f"menu:root:open:{user_id}"),
         ]
     ])
@@ -26,7 +30,7 @@ def duel_game_mode_keyboard(user_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("Dices", callback_data=f"menu:duel:play:dices:{user_id}"),
-            InlineKeyboardButton("Placeholder", callback_data=f"menu:duel:play:p2:{user_id}"),
+            InlineKeyboardButton("Placeholder", callback_data=f"menu:duel:play:p:{user_id}"),
         ],
         [
             InlineKeyboardButton("Назад", callback_data=f"menu:root:open:{user_id}"),

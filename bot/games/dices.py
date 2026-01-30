@@ -2,6 +2,7 @@ import asyncio
 from telegram.ext import ContextTypes
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
+from services.users import update_user_meta
 from services.users import display_name
 
 class Dices:
@@ -55,6 +56,21 @@ class Dices:
                 f"+{self.bet} Ɍ"
             )
 
+            update_user_meta(
+                self.chat_id,
+                self.owner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_wins=lambda old: (old or 0) + 1,
+                max_amount_won=lambda old: max(old or 0, self.bet)
+            )
+            update_user_meta(
+                self.chat_id,
+                self.joiner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_losses=lambda old: (old or 0) + 1,
+                max_amount_lost=lambda old: max(old or 0, self.bet)
+            )
+
         elif joiner_value > owner_value:
             add_balance(self.chat_id, self.joiner_id, self.bet)
             subtract_balance(self.chat_id, self.owner_id, self.bet)
@@ -65,11 +81,39 @@ class Dices:
                 f"+{self.bet} Ɍ"
             )
 
+            update_user_meta(
+                self.chat_id,
+                self.joiner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_wins=lambda old: (old or 0) + 1,
+                max_amount_won=lambda old: max(old or 0, self.bet)
+            )
+            update_user_meta(
+                self.chat_id,
+                self.owner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_losses=lambda old: (old or 0) + 1,
+                max_amount_lost=lambda old: max(old or 0, self.bet)
+            )
+
         else:
             result_text = (
                 f"Ничья\n"
                 f"{owner_value} = {joiner_value}\n"
                 f"Ставки возвращены"
+            )
+
+            update_user_meta(
+                self.chat_id,
+                self.owner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_draws=lambda old: (old or 0) + 1
+            )
+            update_user_meta(
+                self.chat_id,
+                self.joiner_id,
+                games_played=lambda old: (old or 0) + 1,
+                total_draws=lambda old: (old or 0) + 1
             )
 
         await context.bot.send_message(
