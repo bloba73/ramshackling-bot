@@ -6,6 +6,7 @@ from services.users import update_user_meta
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
 from keyboards.inline import repeat_button
+from handlers.callbacks.settings import is_replay_enabled
 
 
 class Roulette:
@@ -105,12 +106,14 @@ class Roulette:
 
         add_balance(self.chat_id, self.user_id, win)
 
+        markup = repeat_button(self.chat_id, self.user_id, self.bet, "roulette") if is_replay_enabled(self.chat_id) else None
+
         await query.edit_message_text(
             f"<b>Вы забрали выигрыш!</b>\n\n"
             f"Множитель: x{multiplier}\n"
             f"Получено: <b>{win} Ɍ</b>",
             parse_mode="HTML",
-            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
+            reply_markup=markup
         )
 
         update_user_meta(
@@ -127,11 +130,13 @@ class Roulette:
         if random.randint(1, self.MAX_CHAMBERS) <= self.bullets:
             subtract_balance(self.chat_id, self.user_id, self.bet)
 
+            markup = repeat_button(self.chat_id, self.user_id, self.bet, "roulette") if is_replay_enabled(self.chat_id) else None
+
             await query.edit_message_text(
                 f"<b>Выстрел!</b>\n\n"
                 f"Вы проиграли <b>{self.bet} Ɍ</b>",
                 parse_mode="HTML",
-                reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
+                reply_markup=markup
             )
 
             update_user_meta(
@@ -151,13 +156,15 @@ class Roulette:
 
             add_balance(self.chat_id, self.user_id, win)
 
+            markup = repeat_button(self.chat_id, self.user_id, self.bet, "roulette") if is_replay_enabled(self.chat_id) else None
+
             await query.edit_message_text(
                 f"<b>Невероятно!</b>\n\n"
                 f"Вы победили!\n"
                 f"Множитель: x{multiplier}\n"
                 f"Получено: <b>{win} Ɍ</b>",
                 parse_mode="HTML",
-                reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
+                reply_markup=markup
             )
 
             update_user_meta(

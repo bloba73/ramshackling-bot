@@ -4,6 +4,7 @@ from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
 from services.users import update_user_meta
 from keyboards.inline import repeat_button
+from handlers.callbacks.settings import is_replay_enabled
 
 class SlotMachine:
     MULTIPLIERS = {
@@ -54,11 +55,16 @@ class SlotMachine:
                 max_amount_lost=lambda old: max(old or 0, self.bet)
             )
 
+        if is_replay_enabled(self.chat_id):
+            markup = repeat_button(self.chat_id, self.user_id, self.bet, "slotmachine")
+        else:
+            markup = None
+            
         await context.bot.send_message(
             self.chat_id,
             f"{outcome_text}",
             parse_mode="HTML",
-            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "slotmachine")
+            reply_markup=markup
         )
 
         game_sessions.end(self.chat_id, self.user_id)

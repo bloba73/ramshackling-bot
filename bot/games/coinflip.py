@@ -7,6 +7,7 @@ from keyboards.inline import repeat_button
 from services.users import update_user_meta
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
+from handlers.callbacks.settings import is_replay_enabled
 
 class Coinflip:
     def __init__(self, chat_id: int, user_id: int, bet: int):
@@ -72,11 +73,16 @@ class Coinflip:
             subtract_balance(self.chat_id, self.user_id, self.bet)
             outcome_text = f"Вы проиграли <b>{self.bet} Ɍ</b>"
 
+        if is_replay_enabled(self.chat_id):
+            markup = repeat_button(self.chat_id, self.user_id, self.bet, "coinflip")
+        else:
+            markup = None
+
         await context.bot.send_message(
             self.chat_id,
             f"Результат: <b>{result}</b>\n{outcome_text}",
             parse_mode="HTML",
-            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "coinflip")
+            reply_markup=markup
         )
 
         update_user_meta(

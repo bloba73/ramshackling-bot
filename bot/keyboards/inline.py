@@ -55,18 +55,19 @@ def repeat_button(chat_id: int, user_id: int, bet: int, game_name: str) -> Inlin
         ]
     ])
 
-def settings_buttons(current_reply: bool = False, current_replay: bool = False):
+def settings_buttons(reply_current: bool = False, replay_current: bool = False) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                f"Клавиатура команд: {'ON' if current_reply else 'OFF'}",
-                callback_data=f"settings:reply_keyboard:{int(not current_reply)}"
+                f"Клавиатура команд: {'ON' if reply_current else 'OFF'}",
+                callback_data=f"settings:reply_keyboard:{int(not reply_current)}"
             )
         ],
-        # [
-        #     InlineKeyboardButton(
-        #         f"Кнопка повторить: {'ON' if current_replay else 'OFF'}",
-        #         callback_data=f"settings:replay:{int(not current_replay)}"
-        #     )
-        # ]
+        [
+            InlineKeyboardButton(
+                f"Кнопка повторить: {'ON' if replay_current else 'OFF'}",
+                callback_data=f"settings:replay:{int(not replay_current)}"
+            )
+        ]
     ])
+
