@@ -119,7 +119,7 @@ class Dices:
             )
 
         if is_replay_enabled(self.chat_id):
-            markup = repeat_button(self.chat_id, self.user_id, self.bet, "dices")
+            markup = repeat_button(self.chat_id, self.owner_id, self.bet, "dices")
         else:
             markup = None
 
