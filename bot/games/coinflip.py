@@ -3,6 +3,7 @@ import random
 import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler
+from keyboards.inline import repeat_button
 from services.users import update_user_meta
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
@@ -14,7 +15,6 @@ class Coinflip:
         self.bet = bet
         self.choice = None
         self.message_id = None
-
 
     async def play(self, context: ContextTypes.DEFAULT_TYPE):
         keyboard = InlineKeyboardMarkup([
@@ -75,7 +75,8 @@ class Coinflip:
         await context.bot.send_message(
             self.chat_id,
             f"Результат: <b>{result}</b>\n{outcome_text}",
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "coinflip")
         )
 
         update_user_meta(

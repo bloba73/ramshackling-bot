@@ -92,7 +92,6 @@ async def run_game(chat_id: int, user_id: int, bet: int, context: ContextTypes.D
         session["game_instance"] = game
     elif game_name == "p":
         return
-    # TODO: рулетка
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):

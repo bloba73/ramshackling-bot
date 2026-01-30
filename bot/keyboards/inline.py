@@ -47,3 +47,10 @@ def duel_lobby_keyboard(owner_id: int) -> InlineKeyboardMarkup:
             InlineKeyboardButton("Отменить", callback_data=f"lobby:duel:cancel:{owner_id}")
         ]
     ])
+
+def repeat_button(chat_id: int, user_id: int, bet: int, game_name: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(f"Повторить ({bet})", callback_data=f"repeat:{game_name}:{bet}:{user_id}")
+        ]
+    ])

@@ -4,6 +4,7 @@ from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
 from services.users import update_user_meta
 from services.users import display_name
+from keyboards.inline import repeat_button
 
 class Dices:
     def __init__(self, chat_id: int, owner_id: int, joiner_id: int, bet: int):
@@ -119,7 +120,8 @@ class Dices:
         await context.bot.send_message(
             self.chat_id,
             result_text,
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=repeat_button(self.chat_id, self.owner_id, self.bet, "dices")
         )
 
         game_sessions.end(self.chat_id, self.owner_id)

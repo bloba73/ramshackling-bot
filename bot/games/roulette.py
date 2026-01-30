@@ -5,6 +5,7 @@ from telegram.ext import ContextTypes, CallbackQueryHandler
 from services.users import update_user_meta
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
+from keyboards.inline import repeat_button
 
 
 class Roulette:
@@ -109,6 +110,7 @@ class Roulette:
             f"Множитель: x{multiplier}\n"
             f"Получено: <b>{win} Ɍ</b>",
             parse_mode="HTML",
+            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
         )
 
         update_user_meta(
@@ -129,6 +131,7 @@ class Roulette:
                 f"<b>Выстрел!</b>\n\n"
                 f"Вы проиграли <b>{self.bet} Ɍ</b>",
                 parse_mode="HTML",
+                reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
             )
 
             update_user_meta(
@@ -154,6 +157,7 @@ class Roulette:
                 f"Множитель: x{multiplier}\n"
                 f"Получено: <b>{win} Ɍ</b>",
                 parse_mode="HTML",
+                reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "roulette")
             )
 
             update_user_meta(

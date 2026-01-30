@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from services.transactions import add_balance, subtract_balance
 from services.gamesessions import game_sessions
 from services.users import update_user_meta
+from keyboards.inline import repeat_button
 
 class SlotMachine:
     MULTIPLIERS = {
@@ -41,7 +42,6 @@ class SlotMachine:
                 total_wins=lambda old: (old or 0) + 1,
                 max_amount_won=lambda old: max(old or 0, winnings)
             )
-
         else:
             subtract_balance(self.chat_id, self.user_id, self.bet)
             outcome_text = f"Увы, вы проиграли {self.bet} Ɍ"
@@ -50,14 +50,15 @@ class SlotMachine:
                 self.chat_id,
                 self.user_id,
                 games_played=lambda old: (old or 0) + 1,
-                total_wins=lambda old: (old or 0) + 1,
-                max_amount_won=lambda old: max(old or 0, winnings)
+                total_losses=lambda old: (old or 0) + 1,
+                max_amount_lost=lambda old: max(old or 0, self.bet)
             )
 
         await context.bot.send_message(
             self.chat_id,
             f"{outcome_text}",
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=repeat_button(self.chat_id, self.user_id, self.bet, "slotmachine")
         )
 
         game_sessions.end(self.chat_id, self.user_id)
