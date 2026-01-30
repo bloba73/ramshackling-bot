@@ -36,7 +36,6 @@ async def repeat_callback(update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     if game_name == "dices":
-
         await multi_lobby_bet(fake_update, context)
     else:
         await solo_lobby_bet(fake_update, context)

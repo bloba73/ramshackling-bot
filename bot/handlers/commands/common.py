@@ -2,6 +2,8 @@ from html import escape
 import random
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
+from keyboards.inline import settings_buttons
+from handlers.callbacks.settings import reply_keyboard_state
 from services.leaderboard import VALID_SORT_PARAMS, get_leaderboard
 
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -13,6 +15,7 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/leaderboard — показать текущий лидерборд\n"
         "/id — узнать ID пользователя, на чьё сообщение вы ответили\n"
         "/gameinfo — информация о играх\n"
+        "/settings — настройки бота\n"
         "/cancel — отменить текущую команду\n\n"
         
         "— <b>Для зарегистрированных пользователей:</b>\n"
@@ -124,12 +127,23 @@ async def z_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Ошибка при отправке стикера: {e}")
 
 
+async def settings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    current = reply_keyboard_state.get(chat_id, False)
+    
+    await update.message.reply_text(
+        "Временные настройки:",
+        reply_markup=settings_buttons(current)
+    )
+
+
 def get_common_handlers():
     handlers = [
         CommandHandler("help", help_handler),
         CommandHandler("leaderboard", leaderboard_handler),
         CommandHandler("id", id_handler),
         CommandHandler("gameinfo", gameinfo_handler),
+        CommandHandler("settings", settings_handler),
         CommandHandler("z", z_handler)
     ]
     return handlers

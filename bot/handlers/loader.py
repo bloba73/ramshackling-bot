@@ -4,6 +4,7 @@ from handlers.conversation.multi_lobby import get_multi_lobby_handler, get_multi
 from handlers.conversation.solo_lobby import get_solo_lobby_handler
 from handlers.callbacks.menu import get_menu_callback_handler
 from handlers.callbacks.repeat_button import get_repeat_handler
+from handlers.callbacks.settings import get_settings_handlers
 from handlers.commands.menu import get_menu_handlers
 from handlers.commands.common import get_common_handlers
 from handlers.commands.profile import get_profile_handlers
@@ -21,6 +22,7 @@ def load_handlers():
     handlers.extend(get_menu_handlers())
     handlers.append(get_repeat_handler())
 
+    handlers.extend(get_settings_handlers())
     handlers.extend(get_common_handlers())
     handlers.extend(get_profile_handlers())
     handlers.extend(get_wallet_handlers())
